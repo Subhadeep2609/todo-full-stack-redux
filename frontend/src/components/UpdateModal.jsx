@@ -16,7 +16,7 @@ const UpdateModal = () => {
   // Fetch Todo by ID
   const getById = async () => {
     try {
-      const result = await axios.get(`http://localhost:8001/getById/${id}`);
+      const result = await axios.get(`https://todo-full-stack-redux.onrender.com/getById/${id}`);
 
       setValue("title", result.data.data.title);
     } catch (error) {
