@@ -7,7 +7,7 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = "http://localhost:8001";
+const BASE_URL = "https://todo-full-stack-redux.onrender.com";
 
 //  FETCH TODOS
 
