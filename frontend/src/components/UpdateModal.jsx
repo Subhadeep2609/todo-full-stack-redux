@@ -1,83 +1,95 @@
-import axios from 'axios'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
-import { useDispatch } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
-import { updateTodo } from './features/todoSlice'
-
+import axios from "axios";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { updateTodo } from "./features/todoSlice";
 
 const UpdateModal = () => {
-    const { register, handleSubmit, formState, setValue } = useForm({
+  const { register, handleSubmit, setValue } = useForm();
 
-    })
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const { id } = useParams()
-    console.log(id);
+  // Fetch Todo by ID
+  const getById = async () => {
+    try {
+      const result = await axios.get(`http://localhost:8001/getById/${id}`);
 
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+      setValue("title", result.data.data.title);
+    } catch (error) {
+      toast.error("Failed to fetch todo!");
+      navigate("/");
+    }
+  };
 
-    async function getById() {
-        const result = await axios.get(`http://localhost:8001/getById/${id}`)
-        console.log(result.data.data.title);
-        const title = result.data.data.title
-        setValue("title", title)
+  // Update Todo
+  const handleUpdate = async (data) => {
+    if (!data.title.trim()) {
+      toast.error("Task cannot be empty!");
+      return;
     }
 
-    const handleUpdate = (data) =>{
-        dispatch(updateTodo({id,data}));
-        navigate("/")
+    const result = await dispatch(updateTodo({ id, data }));
+
+    if (updateTodo.fulfilled.match(result)) {
+      toast.success("Todo updated successfully!");
+      navigate("/");
+    } else {
+      toast.error(result.payload || "Failed to update todo!");
     }
+  };
 
-    function cancelUpdate(){
-        navigate('/')
-    }
+  // Cancel Update
+  const cancelUpdate = () => {
+    navigate("/");
+  };
 
-    useEffect(() => {
-        getById()
-    }, [])
+  useEffect(() => {
+    getById();
+  }, []);
 
+  return (
+    <div>
+      <form onSubmit={handleSubmit(handleUpdate)}>
+        <div className="max-w-xl mx-auto mt-16 flex w-full flex-col border rounded-lg bg-white p-8 shadow-lg">
+          <div className="mb-6">
+            <label
+              htmlFor="title"
+              className="text-sm font-semibold leading-7 text-gray-600"
+            >
+              Title
+            </label>
 
-
-    return (
-      <div>
-        <form onSubmit={handleSubmit(handleUpdate)}>
-          <div className="max-w-xl mx-auto mt-16 flex w-full flex-col border rounded-lg bg-white p-8">
-            <div className="mb-6">
-              <label
-                htmlFor="title"
-                className="text-sm font-semibold leading-7 text-gray-600 mt-3"
-              >
-                Title
-              </label>
-              <input
-                type="text"
-                name="title"
-                {...register("title")}
-                className="w-full rounded border border-gray-300 bg-white py-1 px-3 text-base leading-8 text-gray-700 outline-none transition-colors duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-              />
-            </div>
-
-            <div className="flex justify-center gap-5">
-              <button
-                className="rounded border-0 mt-5 bg-indigo-500 py-2 px-6 text-lg text-white hover:bg-indigo-600 focus:outline-none"
-                type="button"
-                onClick={cancelUpdate}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded border-0 mt-5 bg-indigo-500 py-2 px-6 text-lg text-white hover:bg-indigo-600 focus:outline-none"
-                type="submit"
-              >
-                Update
-              </button>
-            </div>
+            <input
+              type="text"
+              {...register("title")}
+              className="w-full rounded border border-gray-300 bg-white py-2 px-3 text-base text-gray-700 outline-none transition duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            />
           </div>
-        </form>
-      </div>
-    );
-}
 
-export default UpdateModal
+          <div className="flex justify-center gap-5">
+            <button
+              type="button"
+              onClick={cancelUpdate}
+              className="rounded bg-gray-500 py-2 px-6 text-lg text-white hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="rounded bg-indigo-500 py-2 px-6 text-lg text-white hover:bg-indigo-600"
+            >
+              Update
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default UpdateModal;

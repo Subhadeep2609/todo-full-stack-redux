@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { delTodo } from "./features/todoSlice";
+import { toast } from "react-hot-toast";
 
 
 const DeleteModal = ({id,setDelModal}) => {
@@ -8,7 +9,8 @@ const DeleteModal = ({id,setDelModal}) => {
 
   const handleDelete = () =>{
     dispatch(delTodo(id))
-    setDelModal(false)
+    setDelModal(false);
+    toast.success("Todo deleted successfully")
   }
 
 
